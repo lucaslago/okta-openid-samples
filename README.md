@@ -1,12 +1,12 @@
 # Introduction
 Here you can find demonstrations on how to use Okta's OpenID Connect (ODOIC) feature to secure your web applications. The examples are written using JavaScript and Express.
 
-I Strongly recommend that you also check the example Python implementation made by one of Okta's developers. You can check it (here)[https://github.com/jpf/okta-oidc-beta].
+I Strongly recommend that you also check the example Python implementation made by one of Okta's developers. You can check it [here](https://github.com/jpf/okta-oidc-beta).
 
 ## 1. Getting Started
 - 1.1 Adding a new application to Okta Organization & configuring OpenID Connect.
 
-- 1.2 Redirecting auaunthenticated users to Okta.
+- 1.2 Redirecting unauthenticated users to Okta.
 
 - 1.3 Validating the ID Token (JWT).
 
@@ -45,8 +45,36 @@ I Strongly recommend that you also check the example Python implementation made 
   
 
 
-### 1.2 Redirecting auaunthenticated users to Okta.
-WIP
+### 1.2 Redirecting unauthenticated users to Okta's authentication endpoint.
+After creating your application on Okta, you are going to need to redirect all unauthenticated requests to Okta's authorize endpoint (`https://{your_organization}.okta.com/oauth2/v1/authorize?{params}`). This endpoint takes your application's **Client ID** and **Redirect URI**, among other required parameters. Keep in mind that Okta only redirects the user back to URIs configured as "Redirect URIs" on the previous step.
+
+To see the full list of request parameters for this endpoint check Okta's documentation [here](http://developer.okta.com/docs/api/resources/oauth2.html#authentication-request).
+
+Express example:
+```javascript
+  import express from 'express';
+  import querystring from 'querystring';
+  import {OKTA_CONFIG} from './config';
+
+  const app = express();
+
+  app.use((req, res, next) => {
+    if(!req.session.user) {
+      const params = querystring.stringify({
+        redirect_uri: OKTA_CONFIG.OKTA_REDIRECT_URI,
+        client_id: OKTA_CONFIG.OKTA_CLIENT_ID,
+        response_type: 'id_token',
+        response_mode: 'form_post',
+        scope: 'openid email groups',
+        state: 'my-app-state'
+      });
+      const authEndpoint = `${OKTA_CONFIG.OKTA_BASE_URL}/oauth2/v1/authorize?${params}`;
+      res.redirect(authEndpoint);
+    } else {
+      next();
+    }
+  });
+```
 ### 1.3 Validating the ID Token (JWT).
 WIP
 ### 1.4 Obtaining user groups (permissions) from Okta.
