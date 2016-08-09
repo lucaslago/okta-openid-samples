@@ -103,7 +103,7 @@ An-khTOTcmQBKqNqZveoD0IgJWP_my4_PDjsFMRFHbeiccRfBHHdgAoTGvu1jWul7Bz25QCzh
 gY703cd1MJjDFRL4DQPPo6yhLWWs7UCyG2o9SORJc4Qoig
 ```
 
-A JWT is a method for representing claims securely between two parties. It is basically a base64 encoded string divided in 3 parts by dots (**header**, **payload** and **signature**), each containig different information. The above decoded token contains:
+A JWT is a method for representing claims securely between two parties. It is basically a base64 encoded string divided in 3 parts by dots (**header**, **payload** and **signature**) each containing different information. The above decoded token contains:
 
 **Header**
 ```javascript
@@ -142,7 +142,7 @@ A JWT is a method for representing claims securely between two parties. It is ba
 }
 ```
 
-After receiving the ID Token from Okta, you should decode it and validate. **Validating** the token is a very important step in order to guarantee that it has not been altered by a malicious user. 
+After receiving the ID Token from Okta, you should decode and validate it. **Validating** the token is a very important step in order to guarantee that it has not been altered by a malicious user. 
 You should use a library to decode and validate JWTs, you can find a list of libs [here](https://jwt.io/).
 
 The process of validating a token works in the following manner:
