@@ -1,7 +1,7 @@
 # Introduction
-Here you can find demonstrations on how to use Okta's OpenID Connect (ODOIC) feature to secure your web applications. The examples are written using JavaScript and Express.
+The idea of this repository is showing some exmaples about how to use Okta's OpenID Connect (OIDC) feature to secure your applications. All thee examples are written using JavaScript and Express as framework.
 
-I strongly recommend that you also check the example Python implementation made by one of Okta's developers. You can check it [here](https://github.com/jpf/okta-oidc-beta).
+I recommend that you also check the Python example implementation made by onee of Okta's developers. You can check it [here](https://github.com/jpf/okta-oidc-beta).
 
 ## 1. Getting Started
 - 1.1 Adding a new application to Okta Organization & configuring OpenID Connect.
