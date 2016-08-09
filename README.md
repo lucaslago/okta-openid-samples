@@ -1,5 +1,5 @@
 # Introduction
-The idea of this repository is showing some exmaples about how to use Okta's OpenID Connect (OIDC) feature to secure your applications. All thee examples are written using JavaScript and Express as framework.
+The idea behind this repository is showing some examples about how to use Okta's OpenID Connect (OIDC) feature to secure your applications. All the examples are written using JavaScript and Express as framework.
 
 I recommend that you also check the Python example implementation made by onee of Okta's developers. You can check it [here](https://github.com/jpf/okta-oidc-beta).
 
