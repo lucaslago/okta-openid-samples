@@ -50,39 +50,64 @@ After creating your application on Okta, you are going to need to redirect all u
 
 To see the full list of request parameters for this endpoint check Okta's documentation [here](http://developer.okta.com/docs/api/resources/oauth2.html#authentication-request).
 
-Express example:
+Creating a middleware for redirecting unauthenticated users in Express.
+
+E.g: `/express-app/middlewares/checkUserAuth.js`
+
 ```javascript
-  import express from 'express';
-  import querystring from 'querystring';
-  import {OKTA_CONFIG} from './config';
+const express = require('express');
+const querystring = require('querystring');
+const config = require('../config/app-config');
 
-  const app = express();
-
-  app.use((req, res, next) => {
-    if(!req.session.user) {
-      const params = querystring.stringify({
-        // Add one of the URIs registered on step 1.1 here.
-        redirect_uri: OKTA_CONFIG.OKTA_REDIRECT_URI,
-        // Client ID obtained upon creating a new applicaton in Okta
-        client_id: OKTA_CONFIG.OKTA_CLIENT_ID,
-        response_type: 'id_token',
-        // This value changes how Okta sends parameters back to redirect_uri upon successfully authenticating a user.
-        // Check documentation for available values.
-        response_mode: 'form_post',
-        // This value determines what attributes should be contained in the response JSON Web Token (JWT). OpenID is required, email and groups are optional, but really useful if you want the user's e-mail and permissions.
-        // Note that you also need to configure what groups Okta should send back to your app. (step 1.4)
-        scope: 'openid email groups',
-        // Required value according to documentation.
-        // This value can be used to represent your application's state upon the receipt of the response
-        state: 'my-app-state'
-      });
-      const authEndpoint = `${OKTA_CONFIG.OKTA_BASE_URL}/oauth2/v1/authorize?${params}`;
-      res.redirect(authEndpoint);
-    } else {
-      next();
-    }
-  });
+module.exports = (req, res, next) => {
+  // If the user already is authenticated, call the next route handler
+  if(req.session.user) {
+    next();
+  // Otherwise, redirect to Okta for authentication
+  } else {
+    const params = querystring.stringify({
+      // Add one of the URIs registered on step 1.1 here.
+      redirect_uri: config.OKTA_REDIRECT_URI,
+      // Client ID obtained upon creating a new applicaton in Okta
+      client_id: config.OKTA_CLIENT_ID,
+      response_type: 'id_token',
+      // This value changes how Okta sends parameters back to redirect_uri upon successfully authenticating a user.
+      // Check documentation for available values.
+      response_mode: 'form_post',
+      // This value determines what attributes should be contained in the response JSON Web Token (JWT). OpenID is required, email and groups are optional, but really useful if you want the user's e-mail and permissions.
+      // Note that you also need to configure what groups Okta should send back to your app. (step 1.4)
+      scope: 'openid email groups',
+      // Required value according to documentation.
+      // This value can be used to represent your application's state upon the receipt of the response
+      state: 'example state'
+    });
+    const authEndpoint = `${config.OKTA_BASE_URL}/oauth2/v1/authorize?${params}`;
+    res.redirect(authEndpoint);
+  }
+};
 ```
+
+Wiring the created middleware to your application's routes.
+
+E.g: `/express-app/routes/index.js`
+
+```javascript
+const router = require('express').Router();
+// Require checkUserAuth middleware module
+const checkUserAuth = require('../middlewares/checkUserAuth');
+
+// Home page route
+const home = require('./home');
+// Oauth callback route
+const oauthCallback = require('./oauthCallback');
+
+// Register checkUserAuth middleware to home route
+router.get('/', checkUserAuth, home);
+
+// Since users won't be authenticated at this point, we do not check user authentication at this route
+router.use('/oauth/callback', oauthCallback);
+```
+
 ### 1.3 Validating the ID Token (JWT).
 After a successful authentication Okta will generate an ID Token (which in our case is a JSON Web Token or JWT), containing authentication information such as user id, email (optional, depends on scope attribute from step 1.2), expiration date, groups (optional, depends on scope attribute from step 1.2) and other data. This token is posted back to whatever URL was informed as `redirect_uri` in step 1.2.
 
