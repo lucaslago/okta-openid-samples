@@ -11,6 +11,8 @@
     "cookie-parser": "^1.4.3",
     "express": "^4.14.0",
     "express-session": "^1.14.0",
+    "jsonwebtoken": "^7.1.9",
+    "jwk-to-pem": "^1.2.5",
     "morgan": "^1.7.0",
     "pug": "^2.0.0-beta4"
   },
