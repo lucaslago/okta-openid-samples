@@ -174,12 +174,50 @@ The process of validating a token works in the following manner:
 
  1. Verify that the iss (issuer) claim in the ID Token exactly matches the issuer identifier for your Okta org. (e.g: check if "iss" is okta.com or oktapreview.com).
  2. Verify that the aud (audience) claim contains the client_id of your app.
- 3. Obtain the public key associated with this kid.
- 4. Use the public key to validate the contents of this id token.
+ 3. Obtain public key associated with this kid.
+ 4. Use the public key to validate the id token.
  5. Optionally (**recommended**) verify that the expiry time (from the exp claim) has not already passed.
  6. Optionally (**recommended**) send a nonce claim in the authorize endpoint and check its value to make sure its the same as the one that was sent in the Authentication Request. This check can be useful for replay attacks.
  8. Optionally (**recommended**) check the auth_time claim value and request re-authentication using the prompt=login parameter if it determines too much time has elapsed since the last end-user authentication.
+ 
+To obtain the public key:
 
+1. Go to https://{yourcompny}.oktapreview.com/.well-known/openid-configuration
+2. Find the URI value in the `jwks_uri` attribute
+3. Go to https://{yourcompny}.oktapreview.com/oauth2/v1/keys and find the public key related with the key id you want to validate.
+
+E.g:
+```javascript
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const jwkToPem = require('jwk-to-pem');
+const config = require('../config/app-config');
+
+const app = express();
+
+app.post('/oauth/callback', (req, res) => {
+  const token = req.body.id_token;
+  // decode the token without validating it (to extract the key id from the header)
+  const dirtyToken = jwt.decode(token, { complete: true});
+  
+  // Instead of accesing https://{yourcompny}.oktapreview.com/.well-known/openid-configuration
+  // and then https://{yourcompny}.oktapreview.com/oauth2/v1/keys. I did the whole process manually (using the browser) 
+  // and added the public key to my configuration file.
+  const pemEncodedKey = jwkToPem(config.OKTA_PUBLIC_KEYS);
+  
+  // I'm using node-jsonwebtoken (https://github.com/auth0/node-jsonwebtoken) to validate the token
+  // It requires the public key to be PEM encoded in order to verify it.
+  // that's why we used jwkToPem function previously
+  const verifiedToken = jwt.verify(token, pemEncodedKey, { algorithms: ['RS256']});
+
+  req.session.user = verifiedToken.email;
+  res.redirect('/');
+});
+
+module.exports = router;
+
+```
+More details in `/express-app/routes/oauthCallback.js`.
 ### 1.4 Obtaining user groups (permissions) from Okta.
 WIP
 
