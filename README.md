@@ -218,11 +218,6 @@ module.exports = router;
 
 ```
 More details in `/express-app/routes/oauthCallback.js`.
-### 1.4 Obtaining user groups (permissions) from Okta.
-WIP
 
-## 2. Example 1: Browser based app authentication
-WIP
-
-## 2. Example2: Machine-to-machine authentication
-WIP
+## 2. Browser based app authentication example:
+source code example in https://github.com/lucaslago/okta-openid-samples/express-app
