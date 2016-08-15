@@ -2,10 +2,14 @@ const router = require('express').Router();
 
 const checkUserAuth = require('../middlewares/checkUserAuth');
 
-const home = require('./home');
-const oauthCallback = require('./oauthCallback');
+const homeCb= require('./callbacks/home');
+const oauthCb = require('./callbacks/oktaAuth');
+const unauthorizedCb = require('./callbacks/unauthorized');
+const logoutCb = require('./callbacks/logout');
 
-router.get('/', checkUserAuth, home);
-router.use('/oauth/callback', oauthCallback);
+router.get('/401', unauthorizedCb);
+router.post('/oauth/callback', oauthCb);
+router.get('/', checkUserAuth, homeCb);
+router.get('/logout', checkUserAuth, logoutCb);
 
 module.exports = router;
